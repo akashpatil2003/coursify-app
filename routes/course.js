@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { userMiddleware } = require("../middlewares/admin");
+const { userMiddleware } = require("../middlewares/user");
 const { purchaseModel, courseModel } = require("../db");
 const courseRouter = Router();
 
@@ -9,11 +9,12 @@ courseRouter.post("/purchase", userMiddleware, async (req, res) => {
         const courseId = req.body.courseId;
 
         const courseExst = await purchaseModel.findOne({
-            courseId: courseId
+            courseId: courseId,
+            userId: userId
         })
 
         if(courseExst){
-            return res.json({
+            res.json({
                 message: "Course already purchased "
             })
         }

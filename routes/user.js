@@ -1,13 +1,13 @@
 const { Router } = require("express");
 const userRouter = Router();
 const bcrypt = require("bcrypt");
-const { userModel, purchaseModel } = require("../db")
+const { userModel, purchaseModel, courseModel } = require("../db")
 const { z } = require("zod");
 
-const jwt = require("jsonwebtoken")
-const JWT_SECRET = "aka123456"
+const jwt = require("jsonwebtoken");
+const { USER_JWT_SECRET } = require("../config");
 
-const { userMiddleware } = require("../middlewares/admin");
+const { userMiddleware } = require("../middlewares/user");
 
 userRouter.post("/signup",async (req, res) => {
         const { email, password, name} = req.body
@@ -25,8 +25,6 @@ userRouter.post("/signup",async (req, res) => {
                 message: reqBody.error.issues
             })
         }
-
-        
 
         const exstUser = await userModel.findOne({email});
         if(exstUser){
@@ -59,7 +57,7 @@ userRouter.post("/signin", async(req, res) => {
     if (user && matchedPass) {
         const token = jwt.sign({
             id: user._id.toString()
-        },JWT_SECRET);
+        },USER_JWT_SECRET);
         res.status(200).json({
             token:token
         })
@@ -78,9 +76,13 @@ userRouter.post("/purchases", userMiddleware, async (req, res) => {
             userId: userId
         })
 
+        const courseData = await courseModel.find({
+            _id: {$in: purchases.map(x => x.courseId)}
+        })
+
         res.json({
             message:"Your purchases",
-            purchases
+            courseData
         })
     } catch (e) {
         res.status(500).json({

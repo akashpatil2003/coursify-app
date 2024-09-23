@@ -115,7 +115,8 @@ adminRouter.put("/course", adminMiddleware, async (req, res) => {
         })
 
         res.json({
-            message: "Course updated "
+            message: "Course updated ",
+            courseId: course._id
         })
     } catch (e) {
         res.status(500).json({
@@ -144,10 +145,24 @@ adminRouter.get("/course/bulk", adminMiddleware, async(req, res) => {
     }
 })
 
-adminRouter.delete("/course", (req, res) => {
-    res.json({
-        message: "course deleting"
-    })
+adminRouter.delete("/course", adminMiddleware, async (req, res) => {
+    try {
+        const adminId = req.userId;
+        const courseId = req.body.courseId;
+
+        await courseModel.deleteOne({
+            _id: courseId,
+            creatorId: adminId
+        })
+
+        res.json({
+            message: "Deleted Course Successfully",
+            courseId: courseId
+        })
+
+    } catch (e) {
+        
+    }
 })
 
 module.exports = {
