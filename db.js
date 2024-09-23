@@ -12,13 +12,13 @@ const userSchema = new Schema({
 })
 
 const adminSchema = new Schema({
-    email: {type: String, unique: true},
+    email:{type: String, unique: true},
     password: String,
     name: String
 })
 
 const courseSchema = new Schema({
-    title: {type: String, unique: true},
+    title:{type: String, unique: true},
     desc: String,
     price: Number,
     imageURL: String,

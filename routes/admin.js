@@ -1,12 +1,12 @@
 const { Router } = require("express");
-const { adminModel, courseModel } = require("../db")
+const { adminModel, courseModel } = require("../db");
 const adminRouter = Router();
 const bcrypt = require("bcrypt");
-const { adminMiddleware } = require("../middlewares/admin")
+const { adminMiddleware } = require("../middlewares/admin");
 const { z } = require("zod");
 
-const jwt = require("jsonwebtoken")
-const JWT_SECRET = "aka123456"
+const jwt = require("jsonwebtoken");
+const { ADMIN_JWT_SECRET } = require("../config");
 
 adminRouter.post("/signup", async (req, res) => {
     try{
@@ -61,7 +61,7 @@ adminRouter.post("/signin", async(req, res) => {
     if (admin && matchedPass) {
         const token = jwt.sign({
             id: admin._id.toString()
-        },JWT_SECRET);
+        },ADMIN_JWT_SECRET);
         res.status(200).json({
             token:token
         })
@@ -75,7 +75,7 @@ adminRouter.post("/signin", async(req, res) => {
 
 adminRouter.post("/course", adminMiddleware, async (req, res) => {
     try{
-        const adminID = req.userId;
+        const adminId = req.userId;
 
         const { title, desc, price, imageURL } = req.body;
 
@@ -84,7 +84,7 @@ adminRouter.post("/course", adminMiddleware, async (req, res) => {
             desc: desc,
             price: price,
             imageURL: imageURL,
-            creatorId: adminID
+            creatorId: adminId
         })
 
         res.json({
@@ -99,15 +99,49 @@ adminRouter.post("/course", adminMiddleware, async (req, res) => {
 })
 
 adminRouter.put("/course", adminMiddleware, async (req, res) => {
-    res.json({
-        message: "course adding endpoint"
-    })
+    try {
+        const adminId = req.userId;
+
+        const { title, desc, price, imageURL, courseId } = req.body;
+
+        const course = await courseModel.updateOne({
+            _id: courseId,
+            creatorId: adminId
+        },{
+            title: title,
+            desc: desc,
+            price: price,
+            imageURL: imageURL
+        })
+
+        res.json({
+            message: "Course updated "
+        })
+    } catch (e) {
+        res.status(500).json({
+            message: "Error while updating course"
+        })
+    }
 })
 
-adminRouter.get("/course/bulk", (req, res) => {
-    res.json({
-        message: "course adding endpoint"
-    })
+adminRouter.get("/course/bulk", adminMiddleware, async(req, res) => {
+    try {
+        const adminId = req.userId;
+
+        const courses = await courseModel.find({
+            creatorId: adminId
+        })
+
+        res.json({
+            message: "courses fetched",
+            courses
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Error while getting courses"
+        })
+    }
 })
 
 adminRouter.delete("/course", (req, res) => {
