@@ -1,11 +1,13 @@
 const { Router } = require("express");
 const userRouter = Router();
 const bcrypt = require("bcrypt");
-const { userModel } = require("../db")
+const { userModel, purchaseModel } = require("../db")
 const { z } = require("zod");
 
 const jwt = require("jsonwebtoken")
 const JWT_SECRET = "aka123456"
+
+const { userMiddleware } = require("../middlewares/admin");
 
 userRouter.post("/signup",async (req, res) => {
         const { email, password, name} = req.body
@@ -68,10 +70,23 @@ userRouter.post("/signin", async(req, res) => {
     }
 })
 
-userRouter.post("/purchases", (req, res) => {
-    res.json({
-        message: "purchases"
-    })
+userRouter.post("/purchases", userMiddleware, async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const purchases = await purchaseModel.find({
+            userId: userId
+        })
+
+        res.json({
+            message:"Your purchases",
+            purchases
+        })
+    } catch (e) {
+        res.status(500).json({
+            message: "Error while fetching your courses"
+        })
+    }
 })
 
 module.exports = {
