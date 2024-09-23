@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const { MONGO_URL } = require("./config")
 
 const { userRouter } = require("./routes/user");
 const { courseRouter } = require("./routes/course");
@@ -14,7 +15,7 @@ app.use("/course", courseRouter);
 
 
 async function main() {
-    await mongoose.connect("mongodb+srv://admin:admin@cluster0.3qgszuq.mongodb.net/coursify-app")
+    await mongoose.connect(MONGO_URL)
     app.listen(3000);
     console.log("listening on port 3000")
 }

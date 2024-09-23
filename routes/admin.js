@@ -1,8 +1,8 @@
 const { Router } = require("express");
-const { adminModel } = require("../db")
+const { adminModel, courseModel } = require("../db")
 const adminRouter = Router();
 const bcrypt = require("bcrypt");
-const { auth } = require("../auth")
+const { adminMiddleware } = require("../middlewares/admin")
 const { z } = require("zod");
 
 const jwt = require("jsonwebtoken")
@@ -73,11 +73,32 @@ adminRouter.post("/signin", async(req, res) => {
 })
 
 
-adminRouter.post("/course", auth, async(req, res) => {
-    
+adminRouter.post("/course", adminMiddleware, async (req, res) => {
+    try{
+        const adminID = req.userId;
+
+        const { title, desc, price, imageURL } = req.body;
+
+        const course = await courseModel.create({
+            title: title,
+            desc: desc,
+            price: price,
+            imageURL: imageURL,
+            creatorId: adminID
+        })
+
+        res.json({
+            message:"Course created successfully",
+            courseId: course._id
+        })
+    }catch(e){
+        res.status(500).json({
+            message: "Error while creating course"
+        })
+    }
 })
 
-adminRouter.put("/course", (req, res) => {
+adminRouter.put("/course", adminMiddleware, async (req, res) => {
     res.json({
         message: "course adding endpoint"
     })

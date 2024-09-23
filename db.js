@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-mongoose.connect("mongodb+srv://admin:admin@cluster0.3qgszuq.mongodb.net/coursify-app")
+const { MONGO_URL } = require("./config")
+mongoose.connect(MONGO_URL)
 
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Types.ObjectId;
@@ -11,13 +12,13 @@ const userSchema = new Schema({
 })
 
 const adminSchema = new Schema({
-    email:{type: String, unique: true},
+    email: {type: String, unique: true},
     password: String,
     name: String
 })
 
 const courseSchema = new Schema({
-    title:{type: String, unique: true},
+    title: {type: String, unique: true},
     desc: String,
     price: Number,
     imageURL: String,

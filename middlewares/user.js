@@ -1,11 +1,10 @@
 const jwt = require("jsonwebtoken");
+const { USER_JWT_SECRET } = "aka123456";
 
-const JWT_SECRET = "aka123456"
-
-function auth( req, res, next){
+function userMiddleware( req, res, next){
     const token = req.headers.token;
 
-    const decodedData = jwt.verify(token, JWT_SECRET);
+    const decodedData = jwt.verify(token, USER_JWT_SECRET);
 
     if (decodedData) {
         req.userId = decodedData.id;
@@ -18,5 +17,5 @@ function auth( req, res, next){
 }
 
 module.exports = {
-    auth:auth
+    userMiddleware: userMiddleware
 }
